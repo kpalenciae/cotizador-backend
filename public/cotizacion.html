@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Cotizar</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Opcional: ancho similar a tu captura */
+    .modal-dialog { max-width: 720px; }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Botón para abrir el modal (de ejemplo) -->
+  <div class="container py-4">
+    <a href="#" class="text-decoration-none">&larr; Volver a productos</a>
+    <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#modalCotizar">Cotizar</button>
+  </div>
+
+  <!-- Modal Cotizar -->
+  <div class="modal fade" id="modalCotizar" tabindex="-1" aria-labelledby="modalCotizarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-sm">
+        <div class="modal-header">
+          <h5 class="modal-title fw-semibold" id="modalCotizarLabel">Cotizar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <form id="formCotizar" class="needs-validation" novalidate>
+          <div class="modal-body">
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="cliente_nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" required>
+                <div class="invalid-feedback">Ingresa el nombre.</div>
+              </div>
+              <div class="col-md-6">
+                <label for="cliente_apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="cliente_apellido" name="cliente_apellido" required>
+                <div class="invalid-feedback">Ingresa el apellido.</div>
+              </div>
+
+              <div class="col-12">
+                <label for="negocio_nombre" class="form-label">Nombre del Negocio</label>
+                <input type="text" class="form-control" id="negocio_nombre" name="negocio_nombre" required>
+                <div class="invalid-feedback">Ingresa el nombre del negocio.</div>
+              </div>
+
+              <div class="col-md-8">
+                <label for="departamento" class="form-label">Departamento</label>
+                <select id="departamento" name="departamento" class="form-select" required>
+                  <option value="" selected disabled>Seleccione departamento</option>
+                </select>
+                <div class="invalid-feedback">Selecciona un departamento.</div>
+              </div>
+
+              <div class="col-md-4">
+                <label for="municipio" class="form-label">Municipio</label>
+                <input type="text" class="form-control" id="municipio" name="municipio" required>
+                <div class="invalid-feedback">Ingresa el municipio.</div>
+              </div>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de éxito -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+    <div id="toastOk" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">Cotización creada correctamente.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // --- Cargar departamentos de Guatemala ---
+    const departamentosGT = [
+      "Alta Verapaz","Baja Verapaz","Chimaltenango","Chiquimula","El Progreso",
+      "Escuintla","Guatemala","Huehuetenango","Izabal","Jalapa","Jutiapa","Petén",
+      "Quetzaltenango","Quiché","Retalhuleu","Sacatepéquez","San Marcos","Santa Rosa",
+      "Sololá","Suchitepéquez","Totonicapán","Zacapa"
+    ];
+    const selDepto = document.getElementById('departamento');
+    departamentosGT.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d; opt.textContent = d;
+      selDepto.appendChild(opt);
+    });
+
+    // --- Validación Bootstrap + envío ---
+    const form = document.getElementById('formCotizar');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      if (!form.checkValidity()) return;
+
+      // Si guardas el id del usuario logueado:
+      const creadoPor = Number(localStorage.getItem('usuario_id')) || null;
+
+      const payload = {
+        cliente_nombre: form.cliente_nombre.value.trim(),
+        cliente_apellido: form.cliente_apellido.value.trim(),
+        negocio_nombre: form.negocio_nombre.value.trim(),
+        departamento: form.departamento.value,
+        municipio: form.municipio.value.trim(),
+        // estado y fecha los maneja la DB con defaults
+        creado_por: creadoPor // puede ir null
+      };
+
+      try {
+        const res = await fetch('/api/cotizaciones', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err || 'Error al crear cotización');
+        }
+
+        // feedback
+        const toast = new bootstrap.Toast(document.getElementById('toastOk'));
+        toast.show();
+
+        // cerrar modal y limpiar
+        bootstrap.Modal.getInstance(document.getElementById('modalCotizar'))?.hide();
+        form.reset();
+        form.classList.remove('was-validated');
+
+      } catch (err) {
+        alert('No se pudo crear la cotización:\n' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

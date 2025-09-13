@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FarmaMed · Configuración</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root{ --brand:#16a085; }
+    .section-title{ font-weight:600; margin-top:1.5rem; }
+    .card{ border-radius:14px; }
+    .form-switch .form-check-input{ width:3rem; }
+  </style>
+</head>
+<body class="bg-light">
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">Configuración</h1>
+    <button id="btnGuardar" class="btn btn-success">
+      <i class="bi bi-save"></i> Guardar cambios
+    </button>
+  </div>
+
+  <!-- Empresa y Branding -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-title">Empresa y Branding</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-4">
+          <label class="form-label">Nombre comercial</label>
+          <input id="empresa_nombre" class="form-control" placeholder="FarmaMed">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">NIT</label>
+          <input id="empresa_nit" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Teléfono</label>
+          <input id="empresa_telefono" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Correo</label>
+          <input id="empresa_correo" type="email" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Dirección</label>
+          <input id="empresa_direccion" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Color primario</label>
+          <input id="branding_color" type="color" class="form-control form-control-color" value="#16a085">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Logo (URL)</label>
+          <input id="branding_logo" class="form-control" placeholder="/img/logo.png">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Favicon (URL)</label>
+          <input id="branding_favicon" class="form-control" placeholder="/img/favicon.ico">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Moneda e Impuestos -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-title">Moneda, Impuestos y Formatos</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-3">
+          <label class="form-label">Moneda</label>
+          <input id="moneda_codigo" class="form-control" value="GTQ">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Símbolo</label>
+          <input id="moneda_simbolo" class="form-control" value="Q">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">IVA (%)</label>
+          <input id="impuestos_iva" type="number" step="0.01" class="form-control" value="12">
+        </div>
+        <div class="col-md-3 form-check form-switch d-flex align-items-end">
+          <input id="impuestos_incluye" class="form-check-input me-2" type="checkbox" checked>
+          <label class="form-check-label">Precios incluyen IVA</label>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Formato de fecha</label>
+          <select id="fechas_formato" class="form-select">
+            <option>YYYY-MM-DD</option>
+            <option>DD-MM-YYYY</option>
+          </select>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Zona horaria</label>
+          <input id="fechas_tz" class="form-control" value="America/Guatemala">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cotizaciones -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-title">Cotizaciones</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-3">
+          <label class="form-label">Prefijo/Serie</label>
+          <input id="cot_prefijo" class="form-control" value="COT-">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Consecutivo inicial</label>
+          <input id="cot_consecutivo" type="number" class="form-control" value="7">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Validez (días)</label>
+          <input id="cot_validez" type="number" class="form-control" value="15">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estado inicial</label>
+          <select id="cot_estado" class="form-select">
+            <option>Pendiente</option>
+            <option>Borrador</option>
+            <option>Completada</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Redondeo (decimales)</label>
+          <input id="cot_redondeo" type="number" class="form-control" value="2">
+        </div>
+        <div class="col-md-3 form-check form-switch d-flex align-items-end">
+          <input id="cot_desc_global" class="form-check-input me-2" type="checkbox" checked>
+          <label class="form-check-label">Descuento global habilitado</label>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">% Máx. descuento</label>
+          <input id="cot_desc_max" type="number" class="form-control" value="10">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Mín. para “Popular”</label>
+          <input id="cot_pop_min" type="number" class="form-control" value="5">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Notas y términos (PDF/Correo)</label>
+          <textarea id="cot_notas" class="form-control" rows="3">Gracias por su preferencia…</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seguridad -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-title">Seguridad</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-3">
+          <label class="form-label">Longitud mínima contraseña</label>
+          <input id="seg_pwd_min" type="number" class="form-control" value="8">
+        </div>
+        <div class="col-md-3 form-check form-switch d-flex align-items-end">
+          <input id="seg_pwd_comp" class="form-check-input me-2" type="checkbox" checked>
+          <label class="form-check-label">Requerir complejidad</label>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Intentos máx.</label>
+          <input id="seg_intentos" type="number" class="form-control" value="5">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Bloqueo (min)</label>
+          <input id="seg_bloqueo" type="number" class="form-control" value="15">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SMTP -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="section-title">Notificaciones (SMTP)</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-4"><label class="form-label">Host</label><input id="smtp_host" class="form-control"></div>
+        <div class="col-md-2"><label class="form-label">Puerto</label><input id="smtp_puerto" type="number" class="form-control" value="587"></div>
+        <div class="col-md-3"><label class="form-label">Usuario</label><input id="smtp_user" class="form-control"></div>
+        <div class="col-md-3"><label class="form-label">Correo “De”</label><input id="smtp_de" type="email" class="form-control" placeholder="cotizaciones@farmamed.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Webhooks -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="section-title">Integraciones</div>
+      <div class="row g-3 mt-1">
+        <div class="col-md-12"><label class="form-label">Webhook “Cotización Completada”</label><input id="wh_cot_comp" class="form-control" placeholder="https://..."></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="toastOK" class="toast align-items-center text-bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body">Configuración guardada.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(async function cargar(){
+  try{
+    const r = await fetch('/api/config');
+    if(!r.ok) throw new Error('No se pudo cargar configuración');
+    const cfg = await r.json();
+
+    // Empresa
+    if(cfg.empresa){
+      const e = cfg.empresa;
+      empresa_nombre.value = e.nombre||''; empresa_nit.value = e.nit||'';
+      empresa_telefono.value = e.telefono||''; empresa_correo.value = e.correo||'';
+      empresa_direccion.value = e.direccion||'';
+    }
+    if(cfg.branding){
+      branding_color.value = cfg.branding.colorPrimario||'#16a085';
+      branding_logo.value  = cfg.branding.logo||'';
+      branding_favicon.value = cfg.branding.favicon||'';
+    }
+    if(cfg.moneda){
+      moneda_codigo.value = cfg.moneda.codigo||'GTQ';
+      moneda_simbolo.value = cfg.moneda.simbolo||'Q';
+    }
+    if(cfg.impuestos){
+      impuestos_iva.value = cfg.impuestos.iva ?? 12;
+      impuestos_incluye.checked = !!cfg.impuestos.preciosConIVA;
+    }
+    if(cfg.fechas){
+      fechas_formato.value = cfg.fechas.formato||'YYYY-MM-DD';
+      fechas_tz.value = cfg.fechas.timezone||'America/Guatemala';
+    }
+    if(cfg.cotizaciones){
+      cot_prefijo.value     = cfg.cotizaciones.prefijo||'COT-';
+      cot_consecutivo.value = cfg.cotizaciones.consecutivo ?? 1;
+      cot_validez.value     = cfg.cotizaciones.validezDias ?? 15;
+      cot_estado.value      = cfg.cotizaciones.estadoInicial||'Pendiente';
+      cot_redondeo.value    = cfg.cotizaciones.redondeo ?? 2;
+      cot_desc_global.checked = !!cfg.cotizaciones.descuentoGlobal;
+      cot_desc_max.value    = cfg.cotizaciones.descuentoMax ?? 0;
+      cot_pop_min.value     = cfg.cotizaciones.popMin ?? 5;
+      cot_notas.value       = cfg.cotizaciones.notas || 'Gracias por su preferencia…';
+    }
+    if(cfg.seguridad){
+      seg_pwd_min.value  = cfg.seguridad.pwdMinLen ?? 8;
+      seg_pwd_comp.checked = !!cfg.seguridad.pwdComplejidad;
+      seg_intentos.value = cfg.seguridad.intentosMax ?? 5;
+      seg_bloqueo.value  = cfg.seguridad.bloqueoMin ?? 15;
+    }
+    if(cfg.smtp){
+      smtp_host.value = cfg.smtp.host||''; smtp_puerto.value = cfg.smtp.puerto ?? 587;
+      smtp_user.value = cfg.smtp.usuario||''; smtp_de.value = cfg.smtp.de||'';
+    }
+    if(cfg.webhooks){
+      wh_cot_comp.value = cfg.webhooks.cotizacionCompletada||'';
+    }
+  }catch(e){ console.error(e); }
+})();
+
+btnGuardar.addEventListener('click', async () => {
+  const payloads = [
+    { clave:'empresa', valor:{
+      nombre:empresa_nombre.value, nit:empresa_nit.value, telefono:empresa_telefono.value,
+      correo:empresa_correo.value, direccion:empresa_direccion.value
+    }},
+    { clave:'branding', valor:{
+      colorPrimario:branding_color.value, logo:branding_logo.value, favicon:branding_favicon.value
+    }},
+    { clave:'moneda', valor:{ codigo:moneda_codigo.value, simbolo:moneda_simbolo.value }},
+    { clave:'impuestos', valor:{ iva:+impuestos_iva.value, preciosConIVA:impuestos_incluye.checked }},
+    { clave:'fechas', valor:{ formato:fechas_formato.value, timezone:fechas_tz.value }},
+    { clave:'cotizaciones', valor:{
+      prefijo:cot_prefijo.value, consecutivo:+cot_consecutivo.value, validezDias:+cot_validez.value,
+      estadoInicial:cot_estado.value, redondeo:+cot_redondeo.value,
+      descuentoGlobal:cot_desc_global.checked, descuentoMax:+cot_desc_max.value,
+      popMin:+cot_pop_min.value, notas:cot_notas.value
+    }},
+    { clave:'seguridad', valor:{
+      pwdMinLen:+seg_pwd_min.value, pwdComplejidad:seg_pwd_comp.checked,
+      intentosMax:+seg_intentos.value, bloqueoMin:+seg_bloqueo.value
+    }},
+    { clave:'smtp', valor:{
+      host:smtp_host.value, puerto:+smtp_puerto.value, usuario:smtp_user.value, de:smtp_de.value
+    }},
+    { clave:'webhooks', valor:{ cotizacionCompletada:wh_cot_comp.value }}
+  ];
+
+  // Envío en bulk si lo tienes, si no, envía uno por uno:
+  try{
+    const r = await fetch('/api/config/bulk', {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payloads)
+    });
+    if(!r.ok) throw new Error(await r.text());
+    new bootstrap.Toast(document.getElementById('toastOK')).show();
+  }catch(err){
+    // fallback uno por uno
+    try{
+      for(const item of payloads){
+        const r = await fetch('/api/config', {
+          method:'PUT', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(item)
+        });
+        if(!r.ok) throw new Error(await r.text());
+      }
+      new bootstrap.Toast(document.getElementById('toastOK')).show();
+    }catch(e){ alert('Error guardando configuración:\n'+e.message); }
+  }
+});
+</script>
+</body>
+</html>

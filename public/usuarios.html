@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>FarmaMed · Usuarios</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    body{ background:#f6f8fb; }
+    .content{ padding:1.5rem; max-width:1200px; margin:auto; }
+    .page-title{ font-weight:700; color:#1f2b46; }
+    .card{ border:1px solid #e9eef5; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+    .table thead th{ background:#f3f6fb; color:#4d5b7c; font-weight:600; }
+    .badge-role{ background:#eaf8f5; color:#0f6d5f; }
+    .btn-brand{ background:#16a085; border-color:#16a085; color:white; }
+    .btn-brand:hover{ background:#138d75; border-color:#138d75; }
+  </style>
+</head>
+<body>
+
+  <!-- Main -->
+  <main class="content">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h1 class="page-title m-0">Usuarios</h1>
+      <!-- Volver al dashboard (arriba a la derecha) -->
+      <a href="dashboard.html" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-short me-1"></i> Volver al dashboard
+      </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <form id="formFiltros" class="row g-2 align-items-end">
+          <div class="col-sm-5">
+            <label class="form-label">Buscar</label>
+            <input type="search" class="form-control" id="txtSearch" placeholder="Nombre o correo...">
+          </div>
+          <div class="col-sm-3">
+            <label class="form-label">Rol</label>
+            <select class="form-select" id="selRol">
+              <option value="">(Todos)</option>
+              <option value="1">Administrador</option>
+              <option value="2">Gestor</option>
+              <option value="3">Vendedor</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label">Tamaño página</label>
+            <select class="form-select" id="selSize">
+              <option>10</option>
+              <option>20</option>
+              <option>50</option>
+            </select>
+          </div>
+          <div class="col-sm-2 d-grid">
+            <button type="submit" class="btn btn-outline-secondary">
+              <i class="bi bi-search me-2"></i>Aplicar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead>
+            <tr>
+              <th style="width:80px;">ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th style="width:150px;">Rol</th>
+              <th style="width:170px;">Creado</th>
+              <th style="width:170px;">Actualizado</th>
+              <th style="width:110px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyUsuarios">
+            <tr><td colspan="7" class="text-center py-4 text-muted">Sin datos...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación + Nuevo usuario abajo de la tabla -->
+      <div class="d-flex align-items-center justify-content-between p-3">
+        <div class="text-muted" id="lblResumen">Mostrando 0</div>
+        <div class="d-flex align-items-center gap-3">
+          <nav>
+            <ul class="pagination m-0" id="paginacion"></ul>
+          </nav>
+          <button class="btn btn-brand" id="btnNuevo">
+            <i class="bi bi-plus-lg me-2"></i>Nuevo usuario
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Crear/Editar -->
+  <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content">
+        <form id="formUsuario">
+          <div class="modal-header">
+            <h5 class="modal-title" id="tituloModal">Nuevo usuario</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="inpId">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="inpNombre" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-control" id="inpCorreo" required>
+              <div class="form-text form-help" id="helpCorreo">Se verificará si ya está registrado.</div>
+            </div>
+            <div class="row g-2">
+              <div class="col-sm-6">
+                <label class="form-label">Rol</label>
+                <select class="form-select" id="inpRol" required>
+                  <option value="" disabled selected>Seleccione...</option>
+                  <option value="1">Administrador</option>
+                  <option value="2">Gestor</option>
+                  <option value="3">Vendedor</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Password <span class="text-muted">(opcional al editar)</span></label>
+                <input type="password" class="form-control" id="inpPassword" minlength="4" placeholder="••••">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+            <button class="btn btn-brand text-white" type="submit" id="btnGuardar">
+              <i class="bi bi-check2-circle me-2"></i>Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar -->
+  <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Eliminar usuario</h6>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">¿Seguro que deseas eliminar al usuario <strong id="delNombre"></strong>?</p>
+          <input type="hidden" id="delId">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-danger" id="btnConfirmDel"><i class="bi bi-trash me-2"></i>Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="toast" class="toast align-items-center text-bg-dark border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody">Mensaje</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  (() => {
+    const API = '/api/usuarios';
+    const state = { page: 1, size: 10, search: '', rol_id: '' };
+
+    // Helpers
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => Array.from(document.querySelectorAll(q));
+    const fmt = (d) => d ? new Date(d).toLocaleString() : '';
+    const rolName = (id) => ({1:'Administrador',2:'Gestor',3:'Vendedor'}[id] || ('Rol '+id));
+    const showToast = (msg) => {
+      $('#toastBody').textContent = msg;
+      new bootstrap.Toast($('#toast'), {delay:2500}).show();
+    };
+    const authHeaders = () => {
+      const token = localStorage.getItem('token');
+      return token ? { 'Authorization': 'Bearer ' + token } : {};
+    };
+
+    // Cargar
+    async function cargar() {
+      const params = new URLSearchParams({ page: state.page, size: state.size });
+      if (state.search) params.set('search', state.search);
+      if (state.rol_id) params.set('rol_id', state.rol_id);
+
+      const res = await fetch(`${API}?${params.toString()}`, {
+        headers: { 'Accept':'application/json', ...authHeaders() }
+      });
+      if (!res.ok) {
+        const t = await res.json().catch(()=>({message:res.statusText}));
+        showToast('Error listando: ' + (t.message || res.status));
+        return;
+      }
+      const data = await res.json();
+      renderTabla(data);
+      renderPaginacion(data);
+    }
+
+    // Render tabla
+    function renderTabla({items,total,page,size}) {
+      const tbody = $('#tbodyUsuarios');
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Sin resultados</td></tr>`;
+        $('#lblResumen').textContent = 'Sin resultados';
+        return;
+      }
+      tbody.innerHTML = items.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${u.nombre}</td>
+          <td>${u.correo}</td>
+          <td><span class="badge badge-role">${rolName(u.rol_id)}</span></td>
+          <td>${fmt(u.creado_en)}</td>
+          <td>${fmt(u.actualizado_en)}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" data-edit='${JSON.stringify(u).replaceAll("'","&#39;")}' title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-danger" data-del='${u.id}|${u.nombre}' title="Eliminar">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // acciones
+      $$('#tbodyUsuarios [data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const u = JSON.parse(btn.getAttribute('data-edit'));
+          abrirEditar(u);
+        });
+      });
+      $$('#tbodyUsuarios [data-del]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const [id, nombre] = btn.getAttribute('data-del').split('|');
+          $('#delId').value = id;
+          $('#delNombre').textContent = nombre;
+          new bootstrap.Modal($('#modalEliminar')).show();
+        });
+      });
+
+      const start = (page-1)*size + 1;
+      const end = start + items.length - 1;
+      $('#lblResumen').textContent = `Mostrando ${start}-${end} de ${total}`;
+    }
+
+    // Paginación
+    function renderPaginacion({total,page,size}) {
+      const totalPages = Math.max(1, Math.ceil(total / size));
+      const ul = $('#paginacion');
+      const mkLi = (p, label=p, disabled=false, active=false) => `
+        <li class="page-item ${disabled?'disabled':''} ${active?'active':''}">
+          <a class="page-link" href="#" data-page="${p}">${label}</a>
+        </li>`;
+      let html = '';
+      html += mkLi(page-1, '&laquo;', page<=1);
+      const maxBtns = 5;
+      let start = Math.max(1, page - Math.floor(maxBtns/2));
+      let end = Math.min(totalPages, start + maxBtns - 1);
+      if (end - start + 1 < maxBtns) start = Math.max(1, end - maxBtns + 1);
+      for (let p = start; p <= end; p++) html += mkLi(p, p, false, p===page);
+      html += mkLi(page+1, '&raquo;', page>=totalPages);
+      ul.innerHTML = html;
+
+      $$('#paginacion a[data-page]').forEach(a => {
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const p = parseInt(a.getAttribute('data-page'),10);
+          if (!isNaN(p) && p>0) {
+            state.page = p;
+            cargar();
+          }
+        });
+      });
+    }
+
+    // Abrir modal nuevo
+    $('#btnNuevo').addEventListener('click', () => {
+      limpiarForm();
+      $('#tituloModal').textContent = 'Nuevo usuario';
+      new bootstrap.Modal($('#modalUsuario')).show();
+    });
+
+    function limpiarForm() {
+      $('#inpId').value = '';
+      $('#inpNombre').value = '';
+      $('#inpCorreo').value = '';
+      $('#inpRol').value = '';
+      $('#inpPassword').value = '';
+      $('#helpCorreo').textContent = 'Se verificará si ya está registrado.';
+      $('#helpCorreo').classList.remove('text-danger');
+    }
+
+    // Abrir modal editar
+    function abrirEditar(u) {
+      limpiarForm();
+      $('#tituloModal').textContent = 'Editar usuario';
+      $('#inpId').value = u.id;
+      $('#inpNombre').value = u.nombre;
+      $('#inpCorreo').value = u.correo;
+      $('#inpRol').value = u.rol_id;
+      new bootstrap.Modal($('#modalUsuario')).show();
+    }
+
+    // Crear/Editar
+    $('#formUsuario').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const id = $('#inpId').value.trim();
+      const payload = {
+        nombre: $('#inpNombre').value.trim(),
+        correo: $('#inpCorreo').value.trim(),
+        rol_id: parseInt($('#inpRol').value,10)
+      };
+      const pwd = $('#inpPassword').value;
+      if (pwd) payload.password = pwd;
+
+      try {
+        const isEdit = !!id;
+        const url = isEdit ? `${API}/${id}` : API;
+        const method = isEdit ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type':'application/json', ...authHeaders() },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const e = await res.json().catch(()=>({message:res.statusText}));
+          throw new Error(e.message || `HTTP ${res.status}`);
+        }
+        bootstrap.Modal.getInstance($('#modalUsuario'))?.hide();
+        showToast(isEdit ? 'Usuario actualizado' : 'Usuario creado');
+        cargar();
+      } catch (err) {
+        showToast('No se pudo guardar: ' + err.message);
+      }
+    });
+
+    // Eliminar
+    $('#btnConfirmDel').addEventListener('click', async () => {
+      const id = $('#delId').value;
+      try {
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (res.status === 204) {
+          bootstrap.Modal.getInstance($('#modalEliminar'))?.hide();
+          showToast('Usuario eliminado');
+          cargar();
+        } else {
+          const e = await res.json().catch(()=>({message:res.statusText}));
+          throw new Error(e.message || `HTTP ${res.status}`);
+        }
+      } catch (err) {
+        showToast('No se pudo eliminar: ' + err.message);
+      }
+    });
+
+    // Filtros
+    $('#formFiltros').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      state.page = 1;
+      state.size = parseInt($('#selSize').value,10);
+      state.search = $('#txtSearch').value.trim();
+      state.rol_id = $('#selRol').value;
+      cargar();
+    });
+
+    // Debounce check-email
+    let debounceId;
+    $('#inpCorreo').addEventListener('input', () => {
+      clearTimeout(debounceId);
+      debounceId = setTimeout(checkEmail, 400);
+    });
+
+    async function checkEmail() {
+      const id = $('#inpId').value.trim();
+      const correo = $('#inpCorreo').value.trim();
+      if (!correo) return;
+      if (id && correo === $('#inpCorreo').defaultValue) {
+        $('#helpCorreo').textContent = 'Correo sin cambios.';
+        $('#helpCorreo').classList.remove('text-danger');
+        return;
+      }
+      try {
+        const url = `${API}/check-email?` + new URLSearchParams({ correo });
+        const res = await fetch(url, { headers: authHeaders() });
+        const data = await res.json();
+        if (data.existe) {
+          $('#helpCorreo').textContent = 'El correo ya está registrado.';
+          $('#helpCorreo').classList.add('text-danger');
+        } else {
+          $('#helpCorreo').textContent = 'Disponible.';
+          $('#helpCorreo').classList.remove('text-danger');
+        }
+      } catch {}
+    }
+
+    // Init
+    (function init(){
+      $('#selSize').value = '10';
+      cargar();
+    })();
+
+  })();
+  </script>
+</body>
+</html>

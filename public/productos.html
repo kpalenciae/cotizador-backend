@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catálogo de Productos</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f7f9fb; }
+    .product-img {
+      height: 160px;
+      object-fit: cover;
+      border-radius: .75rem;
+      background: #f0f0f0;
+    }
+    .btn-outline-success { border-width: 2px; }
+    .search-wrapper {
+      position: sticky; top: 0; z-index: 1020; background: #f7f9fb;
+      padding-top: 1rem; padding-bottom: .75rem;
+    }
+    .card { border: 1px solid rgba(0,0,0,.06); box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+    .code-badge { font-size: .8rem; color: #6c757d; }
+    .spinner-wrap { min-height: 40vh; }
+  </style>
+</head>
+<body>
+  <main class="container py-4"> 
+    <div class="search-wrapper">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Catálogo de Productos</h1>
+        <!-- Botón Volver -->
+        <a href="dashboard.html" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left-circle"></i> Volver al Dashboard
+        </a>
+      </div>
+
+      <div class="input-group input-group-lg mb-2">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input id="txtBuscar" type="search" class="form-control" placeholder="Buscar productos por nombre o código..." autocomplete="off">
+      </div>
+      <div id="resultCount" class="text-muted small"></div>
+      <hr class="mt-3 mb-0">
+    </div>
+
+    <div id="estadoCarga" class="d-flex align-items-center justify-content-center spinner-wrap">
+      <div class="text-center">
+        <div class="spinner-border text-success" role="status"></div>
+        <div class="mt-2 text-muted">Cargando productos...</div>
+      </div>
+    </div>
+
+    <div id="gridProductos" class="row g-4 d-none"></div>
+  </main>
+
+  <!-- Modal Información -->
+  <div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Información del Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <h6 id="miNombre" class="mb-1"></h6>
+          <div class="code-badge mb-3">Código: <span id="miCodigo"></span></div>
+          <p class="mb-1 fw-semibold">Contenido:</p>
+          <p id="miContenido" class="mb-3"></p>
+          <p class="mb-1 fw-semibold">Descripción:</p>
+          <p id="miDescripcion" class="mb-0"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-dark" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dosificación -->
+  <div class="modal fade" id="modalDosis" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Dosificación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <h6 id="mdNombre" class="mb-1"></h6>
+          <div class="code-badge mb-3">Código: <span id="mdCodigo"></span></div>
+          <p id="mdDosis" class="mb-0"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-dark" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal Cotizar -->
+<div class="modal fade" id="modalCotizar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:720px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Cotizar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <form id="formCotizar" class="needs-validation" novalidate>
+        <div class="modal-body">
+          <!-- Producto seleccionado (solo visual) -->
+          <div class="mb-3">
+            <div class="fw-semibold">Producto</div>
+            <div class="small text-muted">Código: <span id="cotCodigo"></span></div>
+            <div id="cotNombre" class="h6 mb-0"></div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="cliente_nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" required>
+              <div class="invalid-feedback">Ingresa el nombre.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="cliente_apellido" class="form-label">Apellido</label>
+              <input type="text" class="form-control" id="cliente_apellido" name="cliente_apellido" required>
+              <div class="invalid-feedback">Ingresa el apellido.</div>
+            </div>
+
+            <div class="col-12">
+              <label for="negocio_nombre" class="form-label">Nombre del Negocio</label>
+              <input type="text" class="form-control" id="negocio_nombre" name="negocio_nombre" required>
+              <div class="invalid-feedback">Ingresa el nombre del negocio.</div>
+            </div>
+
+            <div class="col-md-8">
+              <label for="departamento" class="form-label">Departamento</label>
+              <select id="departamento" name="departamento" class="form-select" required>
+                <option value="" selected disabled>Seleccione departamento</option>
+              </select>
+              <div class="invalid-feedback">Selecciona un departamento.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label for="municipio" class="form-label">Municipio</label>
+              <input type="text" class="form-control" id="municipio" name="municipio" required>
+              <div class="invalid-feedback">Ingresa el municipio.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-success" type="submit">Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Éxito: Cotización Enviada -->
+<div class="modal fade" id="modalExito" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Cotización Enviada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="display-4 mb-2">
+          <i class="bi bi-check-circle-fill text-success"></i>
+        </div>
+        <p class="fs-5 mb-1"><strong>¡Cotización enviada con éxito!</strong></p>
+        <p class="text-muted mb-0">
+          Un vendedor se pondrá en contacto con usted pronto para proporcionarle los precios y detalles de su cotización.
+        </p>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-success px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalles del Producto -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:680px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Detalles del Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <form id="formDetalles" class="needs-validation" novalidate>
+        <div class="modal-body">
+          <div class="mb-3 p-3 bg-light rounded">
+            <div class="small text-muted mb-1">Producto seleccionado:</div>
+            <div class="fw-semibold" id="detNombre">—</div>
+            <div class="small text-muted">Código: <span id="detCodigo">—</span></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="cantidad" class="form-label">Cantidad</label>
+            <select id="cantidad" name="cantidad" class="form-select" required>
+              <option value="1" selected>1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5">5</option>
+              <option value="10">10</option><option value="20">20</option>
+            </select>
+            <div class="invalid-feedback">Selecciona una cantidad.</div>
+          </div>
+
+          <div class="mb-0">
+            <label for="notas" class="form-label">Notas adicionales</label>
+            <textarea id="notas" name="notas" class="form-control" rows="4"
+              placeholder="Especificaciones adicionales o preguntas..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-target="#modalCotizar" data-bs-toggle="modal">Atrás</button>
+          <button type="submit" class="btn btn-success">Finalizar Cotización</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Toast de éxito -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+  <div id="toastOk" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">Cotización creada correctamente.</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- Bootstrap + Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<script>
+  // === Config ===
+  const API_PRODUCTOS = "/api/productos";
+  const IMAGES_BASE_PATH = "";
+  const FALLBACK_IMG = "data:image/svg+xml;charset=utf8," + encodeURIComponent(`
+    <svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>
+      <rect width='100%' height='100%' fill='#eef1f4'/>
+      <g fill='#adb5bd' font-family='Arial,Helvetica,sans-serif' font-size='24'>
+        <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>Sin imagen</text>
+      </g>
+    </svg>`);
+
+  // === Estado ===
+  let productos = [];
+  let filtro = "";
+  let productoSeleccionado = null; // único y sin duplicados
+  let ultimoIdCotizacion = null;
+
+  // === Helpers DOM ===
+  const $ = s => document.querySelector(s);
+  const normalizar = (str="") =>
+    (str||"").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,"");
+  function unwrapProducts(payload){
+    if (Array.isArray(payload)) return payload;
+    const keys = ["data","productos","rows","result","results","items"];
+    for (const k of keys) if (Array.isArray(payload?.[k])) return payload[k];
+    if (Array.isArray(payload?.[0])) return payload[0]; // mysql2
+    return [];
+  }
+  function escapeHtml(s=""){
+    return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+
+  function cardProductoHtml(p){
+    const imgSrc = p.imagen ? (IMAGES_BASE_PATH + p.imagen) : FALLBACK_IMG;
+    return `
+      <div class="col-12 col-sm-6 col-lg-4 col-xxl-3">
+        <div class="card h-100">
+          <img src="${imgSrc}" class="product-img w-100" alt="${escapeHtml(p.nombre)}"
+               onerror="this.onerror=null;this.src='${FALLBACK_IMG}';">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="card-title mb-1">${escapeHtml(p.nombre)}</h5>
+              <span class="code-badge">Código: ${escapeHtml(p.codigo||"")}</span>
+            </div>
+            <div class="d-grid gap-2 mt-3">
+              <div class="d-flex gap-2">
+                <button id="btn-info-${p.id}" class="btn btn-outline-success flex-fill">Información</button>
+                <button id="btn-dosi-${p.id}" class="btn btn-outline-primary flex-fill">Dosificación</button>
+              </div>
+              <button id="btn-cot-${p.id}" class="btn btn-success">Ver detalles y cotizar</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function render(){
+    const grid = $("#gridProductos");
+    const rc = $("#resultCount");
+    const data = productos.filter(p => {
+      if (!filtro) return true;
+      return normalizar(p.nombre).includes(filtro) || normalizar(p.codigo||"").includes(filtro);
+    });
+
+    rc.textContent = filtro
+      ? (data.length ? `${data.length} resultado(s)` : "Sin resultados")
+      : (data.length ? `${data.length} en catálogo` : "No hay productos en el catálogo");
+
+    grid.innerHTML = data.map(cardProductoHtml).join("");
+
+    // Wire de botones
+    data.forEach(p=>{
+      document.getElementById(`btn-info-${p.id}`)?.addEventListener("click", ()=>abrirInfo(p));
+      document.getElementById(`btn-dosi-${p.id}`)?.addEventListener("click", ()=>abrirDosis(p));
+      document.getElementById(`btn-cot-${p.id}`)?.addEventListener("click", ()=>abrirCotizar(p));
+    });
+  }
+
+  function abrirInfo(p){
+    $("#miNombre").textContent = p.nombre || "";
+    $("#miCodigo").textContent = p.codigo || "";
+    $("#miContenido").textContent = p.contenido || "—";
+    $("#miDescripcion").textContent = p.descripcion || "—";
+    new bootstrap.Modal(document.getElementById("modalInfo")).show();
+  }
+  function abrirDosis(p){
+    $("#mdNombre").textContent = p.nombre || "";
+    $("#mdCodigo").textContent = p.codigo || "";
+    $("#mdDosis").textContent = p.dosis || "—";
+    new bootstrap.Modal(document.getElementById("modalDosis")).show();
+  }
+
+  // --- Departamentos de Guatemala ---
+  const DEPARTAMENTOS_GT = [
+    "Alta Verapaz","Baja Verapaz","Chimaltenango","Chiquimula","El Progreso",
+    "Escuintla","Guatemala","Huehuetenango","Izabal","Jalapa","Jutiapa","Petén",
+    "Quetzaltenango","Quiché","Retalhuleu","Sacatepéquez","San Marcos","Santa Rosa",
+    "Sololá","Suchitepéquez","Totonicapán","Zacapa"
+  ];
+  (function cargarDeptos(){
+    const sel = document.getElementById('departamento');
+    if (!sel || sel.dataset.loaded === "1") return;
+    DEPARTAMENTOS_GT.forEach(d => {
+      const o = document.createElement('option'); o.value = d; o.textContent = d;
+      sel.appendChild(o);
+    });
+    sel.dataset.loaded = "1";
+  })();
+
+  // Abre el primer modal (cotizar)
+  function abrirCotizar(p){
+    productoSeleccionado = p;
+    document.getElementById('cotNombre').textContent = p?.nombre || "";
+    document.getElementById('cotCodigo').textContent = p?.codigo || "";
+    const f = document.getElementById('formCotizar');
+    f.reset(); f.classList.remove('was-validated');
+    new bootstrap.Modal(document.getElementById('modalCotizar')).show();
+  }
+
+  // Submit del primer modal: crea ENCABEZADO y abre “Detalles”
+  document.getElementById('formCotizar').addEventListener('submit', async (e)=>{
+    e.preventDefault(); e.stopPropagation();
+    const form = e.currentTarget;
+    form.classList.add('was-validated');
+    if (!form.checkValidity()) return;
+
+    const creadoPor = Number(localStorage.getItem('usuario_id')) || null;
+    const payload = {
+      cliente_nombre: form.cliente_nombre.value.trim(),
+      cliente_apellido: form.cliente_apellido.value.trim(),
+      negocio_nombre: form.negocio_nombre.value.trim(),
+      departamento: form.departamento.value,
+      municipio: form.municipio.value.trim(),
+      creado_por: (Number.isInteger(creadoPor) ? creadoPor : null)
+    };
+
+    try {
+      const res = await fetch('/api/cotizaciones', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
+      const json = await res.json();
+      ultimoIdCotizacion = json?.data?.id ?? json?.id ?? null;
+      if (!ultimoIdCotizacion) throw new Error('No se obtuvo id de la cotización');
+
+      // Pasar a modal de Detalles
+      bootstrap.Modal.getInstance(document.getElementById('modalCotizar'))?.hide();
+      document.getElementById('detNombre').textContent = productoSeleccionado?.nombre || "";
+      document.getElementById('detCodigo').textContent = productoSeleccionado?.codigo || "";
+      const f2 = document.getElementById('formDetalles');
+      f2.reset(); f2.classList.remove('was-validated');
+      new bootstrap.Modal(document.getElementById('modalDetalles')).show();
+
+    } catch (err) {
+      alert('No se pudo crear la cotización:\n' + err.message);
+    }
+  });
+
+  // Submit del segundo modal: crea DETALLE y luego muestra “Cotización Enviada”
+  document.getElementById('formDetalles').addEventListener('submit', async (e)=>{
+    e.preventDefault(); e.stopPropagation();
+    const form = e.currentTarget;
+    form.classList.add('was-validated');
+    if (!form.checkValidity()) return;
+
+    const payload = {
+      cotizacion_id: ultimoIdCotizacion,
+      producto_id: Number(productoSeleccionado?.id),
+      cantidad: Number(form.cantidad.value),
+      notas: form.notas.value.trim() || null
+    };
+
+    try {
+      const res = await fetch('/api/crearDetalleCotizacion', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
+
+      // Cerrar “Detalles” y abrir modal de éxito
+      bootstrap.Modal.getInstance(document.getElementById('modalDetalles'))?.hide();
+      new bootstrap.Modal(document.getElementById('modalExito')).show();
+
+    } catch (err) {
+      alert('No se pudo guardar el detalle:\n' + err.message);
+    }
+  });
+
+  // Carga inicial de productos
+  async function cargarProductos(){
+    try{
+      const res = await fetch(API_PRODUCTOS, { headers: { "Accept":"application/json" }});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      productos = unwrapProducts(raw).map((p, i) => ({
+        id: p.id ?? p.ID ?? i+1,
+        nombre: p.nombre ?? p.Nombre ?? p.producto ?? "",
+        codigo: p.codigo ?? p.cod ?? p.code ?? p.codigo_producto ?? "",
+        descripcion: p.descripcion ?? p.desc ?? p.descripcion_larga ?? "",
+        contenido: p.contenido ?? p.presentacion ?? "",
+        dosis: p.dosis ?? p.dosificacion ?? "",
+        imagen: p.imagen ?? p.img ?? p.foto ?? ""
+      }));
+      $("#estadoCarga").classList.add("d-none");
+      $("#gridProductos").classList.remove("d-none");
+      render();
+    } catch(err){
+      console.error(err);
+      $("#estadoCarga").innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          No se pudieron cargar los productos (${err.message}). Verifica que <code>${API_PRODUCTOS}</code> esté activo.
+        </div>`;
+    }
+  }
+
+  // Buscador (debounce)
+  function debounce(fn, wait=200){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), wait); }; }
+  $("#txtBuscar").addEventListener("input", debounce(e=>{
+    filtro = normalizar(e.target.value.trim());
+    render();
+  }, 200));
+
+  cargarProductos();
+</script>
+
+
+</body>
+</html>

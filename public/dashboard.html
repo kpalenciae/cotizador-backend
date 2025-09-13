@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FarmaMed · Dashboard</title>
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+  <style>
+    :root{
+      --sidebar-w: 240px;
+      --brand:#16a085;
+    }
+    body { background:#f6f8fb; }
+    .app{ display:flex; min-height:100vh; }
+    .sidebar{
+      width:var(--sidebar-w); background:#ffffff; border-right:1px solid #e9eef5;
+      position:sticky; top:0; height:100vh; padding:1rem .75rem;
+    }
+    .brand{ font-weight:700; color:#132238; display:flex; align-items:center; gap:.5rem; }
+    .brand .dot{ width:28px; height:28px; border-radius:8px; background:var(--brand); display:inline-block; }
+    .nav-aside .nav-link{
+      color:#24324a; border-radius:.75rem; padding:.55rem .75rem; display:flex; align-items:center; gap:.6rem;
+    }
+    .nav-aside .nav-link:hover{ background:#f1f5fb; }
+    .nav-aside .nav-link.active{ background:#e8faf5; color:#0f7a67; font-weight:600; }
+    .content{ flex:1; display:flex; flex-direction:column; }
+    .topbar{
+      height:64px; background:#ffffff; border-bottom:1px solid #e9eef5; display:flex;
+      align-items:center; justify-content:space-between; padding:0 1rem;
+    }
+    .search{ max-width:360px; }
+    .page{ padding:1rem; }
+    .card-kpi .icon{
+      width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:#eafaf5; color:#0f7a67; font-size:1.2rem;
+    }
+    .table > :not(caption) > * > *{ background:transparent; }
+    .badge-soft{
+      background:#f4f6fb; color:#274b69; border:1px solid #dfe7f3; font-weight:600;
+    }
+    .products-pop li{ border-bottom:1px dashed #e8edf5; padding:.6rem 0; }
+    .footer-link{ color:#0f7a67; font-weight:600; text-decoration:none; }
+    @media (max-width: 992px){
+      .sidebar{ position:fixed; z-index:1040; transform:translateX(-100%); transition:.25s; }
+      .sidebar.show{ transform:translateX(0); }
+      .content{ margin-left:0; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="brand"><span class="dot"></span> <span>FarmaMed</span></div>
+      <button class="btn btn-sm btn-outline-secondary d-lg-none" id="btnCloseAside"><i class="bi bi-x"></i></button>
+    </div>
+
+    <nav class="nav flex-column nav-aside">
+      <a class="nav-link active" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a class="nav-link" href="productos.html"><i class="bi bi-box-seam"></i> Productos</a>
+      <a class="nav-link" href="usuarios.html"><i class="bi bi-people"></i> Usuarios</a>
+      <a class="nav-link" href="cotizaciones.html"><i class="bi bi-receipt"></i> Cotizaciones</a>
+
+    </nav>
+
+<div class="mt-auto pt-3">
+  <a id="btnLogout" class="nav-link text-danger" href="#" role="button">
+    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+  </a>
+</div>
+
+
+  </aside>
+
+  <!-- Main -->
+  <main class="content">
+    <!-- Topbar -->
+
+
+    <!-- Page -->
+    <div class="page container-fluid">
+      <!-- KPIs -->
+      <div class="row g-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card card-kpi shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <div class="text-muted small">Total Productos</div>
+                <div class="fs-3 fw-bold" id="kpiProductos">—</div>
+              </div>
+              <div class="icon"><i class="bi bi-box-seam"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card card-kpi shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <div class="text-muted small">Cotizaciones Pendientes</div>
+                <div class="fs-3 fw-bold" id="kpiPendientes">—</div>
+              </div>
+              <div class="icon"><i class="bi bi-files"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card card-kpi shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <div class="text-muted small">Cotizaciones Hoy</div>
+                <div class="fs-3 fw-bold" id="kpiHoy">—</div>
+              </div>
+              <div class="icon"><i class="bi bi-journal-text"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card card-kpi shadow-sm border-0">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <div class="text-muted small">Usuarios</div>
+                <div class="fs-3 fw-bold" id="kpiUsuarios">—</div>
+              </div>
+              <div class="icon"><i class="bi bi-person-badge"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle -->
+      <div class="row g-3 mt-1">
+        <div class="col-12 col-xl-8">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h5 class="card-title mb-1">Cotizaciones Recientes</h5>
+              <div class="text-muted small mb-3">Últimas solicitudes de cotización recibidas</div>
+
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>Cliente</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                      <th class="text-end">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyCotizaciones">
+                    <!-- filas generadas por JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="text-end">
+                <a href="cotizaciones.html" class="footer-link">Ver todas las cotizaciones <i class="bi bi-arrow-right-short"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <h5 class="card-title">Productos Populares</h5>
+              <div class="text-muted small mb-2">Productos más solicitados en cotizaciones</div>
+              <ul class="list-unstyled products-pop" id="listaPopulares">
+                <!-- items generados por JS -->
+              </ul>
+              <a href="productos.html" class="footer-link">Ver todos los productos <i class="bi bi-arrow-right-short"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page -->
+  </main>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Proteger dashboard: si no hay sesión, redirige al login
+  (function checkAuth() {
+    const token = localStorage.getItem('token');
+    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
+    if (!token || !usuario) {
+      window.location.href = '/login.html'; // si no hay sesión
+    }
+  })();
+
+
+  // Sidebar móvil
+  const aside = document.getElementById('sidebar');
+  document.getElementById('btnOpenAside')?.addEventListener('click', ()=> aside.classList.add('show'));
+  document.getElementById('btnCloseAside')?.addEventListener('click', ()=> aside.classList.remove('show'));
+
+  // Utilidades
+  const fmtFecha = (iso) => {
+    try { return new Date(iso).toISOString().slice(0,10); } catch(e){ return iso ?? ''; }
+  };
+  const estadoBadge = (estado) => {
+    const map = {
+      'Pendiente': 'warning',
+      'Enviada': 'primary',
+      'Completada': 'success'
+    };
+    const color = map[estado] || 'secondary';
+    return `<span class="badge text-bg-${color}">${estado || '—'}</span>`;
+  };
+
+  // Carga de KPIs y tablas (con fallbacks)
+
+// --- helpers comunes ---
+const authHeaders = () => {
+  const t = localStorage.getItem('token');
+  return t ? { Authorization: 'Bearer ' + t } : {};
+};
+const ymdLocal = (date) => {
+  const d = new Date(date);
+  // normaliza a fecha local YYYY-MM-DD
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+// obtiene total desde listados que SI responden {items,total,...}
+async function getTotal(endpoint, extraParams = {}) {
+  const params = new URLSearchParams({ size: 1, ...extraParams });
+  const res = await fetch(`${endpoint}?${params.toString()}`, {
+    headers: { Accept: 'application/json', ...authHeaders() }
+  });
+  if (!res.ok) return 0;
+  const data = await res.json();
+  return Number(data.total ?? 0);
+}
+
+// carga KPIs
+(async function cargarKPIs2(){
+  try {
+    // Estos 2 ya funcionan con {items,total}
+    const [totalProductos, totalUsuarios] = await Promise.all([
+      getTotal('/api/productos'),
+      getTotal('/api/usuarios')
+    ]);
+    document.getElementById('kpiProductos').textContent = totalProductos;
+    document.getElementById('kpiUsuarios').textContent = totalUsuarios;
+
+    // Cotizaciones: este endpoint te devuelve un ARRAY; contamos en el cliente
+    const rc = await fetch('/api/cotizaciones', {
+      headers: { Accept: 'application/json', ...authHeaders() }
+    });
+    if (!rc.ok) throw new Error('No se pudo listar cotizaciones');
+    const dataC = await rc.json();
+    const list = Array.isArray(dataC) ? dataC : (dataC.items || []);
+
+    // Pendientes
+    const pendientes = list.filter(c =>
+      String(c.estado || '').toLowerCase() === 'pendiente'
+    ).length;
+    document.getElementById('kpiPendientes').textContent = pendientes;
+
+    // Hoy (comparando por fecha local YYYY-MM-DD)
+    const hoy = ymdLocal(new Date());
+    const deHoy = list.filter(c => {
+      if (!c.fecha) return false;
+      return ymdLocal(c.fecha) === hoy;
+    }).length;
+    document.getElementById('kpiHoy').textContent = deHoy;
+
+  } catch (e) {
+    console.error('Error cargando KPIs', e);
+    // opcional: setear 0/mostrar toast
+  }
+})();
+
+
+// KPIs usando los endpoints de listar (opción A)
+(async function cargarKPIs(){
+  const authHeaders = () => {
+    const t = localStorage.getItem('token');
+    return t ? { Authorization: 'Bearer ' + t } : {};
+  };
+
+  async function getTotal(endpoint, extraParams = {}) {
+    const params = new URLSearchParams({ size: 1, ...extraParams });
+    const res = await fetch(`${endpoint}?${params.toString()}`, {
+      headers: { Accept: 'application/json', ...authHeaders() }
+    });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return Number(data.total ?? 0);
+  }
+
+  try {
+    const [prod, users, pendientes, hoy] = await Promise.all([
+      getTotal('/api/productos'),
+      getTotal('/api/usuarios'),
+      getTotal('/api/cotizaciones', { estado: 'Pendiente' }),
+      // para hoy: según como tengas el filtro de fecha en cotizaciones
+      (() => {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        const ymd = `${yyyy}-${mm}-${dd}`;
+        return getTotal('/api/cotizaciones', { fecha: ymd });
+      })()
+    ]);
+
+    document.getElementById('kpiProductos').textContent = prod;
+    document.getElementById('kpiUsuarios').textContent = users;
+    document.getElementById('kpiPendientes').textContent = pendientes;
+    document.getElementById('kpiHoy').textContent = hoy;
+  } catch(e){
+    console.error('Error cargando KPIs', e);
+  }
+})();
+
+
+ async function cargarDatos(){
+
+    // Cotizaciones recientes (FIX: ?limit=4 y sin sombrear la variable)
+    try {
+      const r = await fetch('/api/cotizaciones/recientes?limit=4');
+      if (r.ok) {
+        detalles = await r.json();
+      }
+    } catch(e){
+      console.error('Error al cargar cotizaciones:', e);
+      detalles = [];
+    }
+
+    // Fallback demo si no hay datos
+    if (!Array.isArray(detalles) || detalles.length === 0) {
+      detalles = [
+        { id:'COT-001', cliente:'Farmacia San José', fecha:'2025-05-12', estado:'Pendiente' },
+        { id:'COT-002', cliente:'Droguería Central',  fecha:'2025-05-11', estado:'Enviada'   },
+        { id:'COT-003', cliente:'Farmacia El Pueblo', fecha:'2025-05-10', estado:'Completada'},
+        { id:'COT-004', cliente:'Distribuidora Médica', fecha:'2025-05-09', estado:'Completada'},
+      ];
+    }
+
+    const hoyISO = new Date().toISOString().slice(0,10);
+    const pendientes = detalles.filter(d => (d.estado||'').toLowerCase()==='pendiente').length;
+    const hoy = detalles.filter(d => (fmtFecha(d.fecha)===hoyISO)).length;
+    document.getElementById('kpiPendientes').textContent = pendientes || '24';
+    document.getElementById('kpiHoy').textContent = hoy || '5';
+
+    const tbody = document.getElementById('tbodyCotizaciones');
+    tbody.innerHTML = detalles.slice(0,4).map(d => `
+      <tr>
+        <td>${d.id || '—'}</td>
+        <td>${d.cliente || d.cliente_nombre || '—'}</td>
+        <td>${fmtFecha(d.fecha)}</td>
+        <td>${estadoBadge(d.estado)}</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="Cotizaciones.html"><i class="bi bi-eye"></i> Ver</a></td>
+      </tr>
+    `).join('');
+  }
+
+  cargarDatos();
+
+  // Acción de cerrar sesión
+  document.getElementById('btnLogout')?.addEventListener('click', () => {
+    // Limpiar storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+
+    // Redirigir al login
+    window.location.href = '/login.html';
+  });
+</script>
+</body>
+</html>
